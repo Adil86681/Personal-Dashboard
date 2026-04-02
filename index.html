@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Adil's Morning Dashboard</title>
+  <style>
+    :root {
+      --bg: #0d0f18;
+      --surface: #151722;
+      --surface2: #1d2035;
+      --border: #272b45;
+      --accent: #7c6dfa;
+      --accent2: #4fc3f7;
+      --text: #e8eaf6;
+      --text-muted: #6b74a0;
+      --green: #4caf50;
+      --yellow: #ffc107;
+      --red: #ef5350;
+      --blue: #42a5f5;
+      --orange: #ff9800;
+      --radius: 14px;
+      --shadow: 0 4px 28px rgba(0,0,0,0.4);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 22px 26px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header-left h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      background: linear-gradient(100deg, #7c6dfa 0%, #4fc3f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header-left .sub {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 3px;
+    }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .clock {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 16px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent2);
+      letter-spacing: 2px;
+    }
+    .date-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* ── GRID ── */
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+    .col-4  { grid-column: span 4; }
+    .col-5  { grid-column: span 5; }
+    .col-6  { grid-column: span 6; }
+    .col-7  { grid-column: span 7; }
+    .col-8  { grid-column: span 8; }
+    .col-12 { grid-column: span 12; }
+    @media(max-width:1100px){ .col-4,.col-5{ grid-column:span 6; } .col-7,.col-8{ grid-column:span 12; } }
+    @media(max-width:700px){ .col-4,.col-5,.col-6,.col-7,.col-8,.col-12{ grid-column:span 12; } }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .card.purple::before { background: linear-gradient(90deg,#7c6dfa,#9c55f5); }
+    .card.blue::before   { background: linear-gradient(90deg,#42a5f5,#4fc3f7); }
+    .card.teal::before   { background: linear-gradient(90deg,#26a69a,#80cbc4); }
+    .card.orange::before { background: linear-gradient(90deg,#ff9800,#ffb74d); }
+    .card.green::before  { background: linear-gradient(90deg,#4caf50,#81c784); }
+    .card.pink::before   { background: linear-gradient(90deg,#ec407a,#f48fb1); }
+
+    /* ── CARD HEADER ── */
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+    .card-icon {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+    .icon-purple { background:rgba(124,109,250,0.2); }
+    .icon-blue   { background:rgba(66,165,245,0.2); }
+    .icon-teal   { background:rgba(38,166,154,0.2); }
+    .icon-orange { background:rgba(255,152,0,0.2); }
+    .icon-green  { background:rgba(76,175,80,0.2); }
+    .icon-pink   { background:rgba(236,64,122,0.2); }
+
+    /* ── BADGE ── */
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+    .badge-live   { background:rgba(76,175,80,0.15); color:var(--green); border:1px solid rgba(76,175,80,0.3); }
+    .badge-count  { background:var(--accent); color:#fff; }
+
+    /* ── SCROLLABLE LIST ── */
+    .scroll-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 320px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .scroll-list::-webkit-scrollbar { width: 4px; }
+    .scroll-list::-webkit-scrollbar-track { background: transparent; }
+    .scroll-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ── EMAIL ITEM ── */
+    .email-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 11px 13px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+    .email-item:hover { border-color: var(--accent); }
+    .email-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .email-body { flex: 1; min-width: 0; }
+    .email-from { font-size: 0.78rem; font-weight: 700; color: var(--text); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .email-subject { font-size: 0.82rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .email-preview { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .email-time { font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
+    .unread-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 5px; }
+
+    /* ── SLACK ITEM ── */
+    .slack-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 11px 13px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+    .slack-item:hover { border-color: var(--blue); }
+    .slack-avatar {
+      width: 30px; height: 30px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .slack-body { flex: 1; min-width: 0; }
+    .slack-from { font-size: 0.78rem; font-weight: 700; color: var(--text); }
+    .slack-channel { font-size: 0.68rem; color: var(--text-muted); margin-left: 5px; }
+    .slack-msg { font-size: 0.8rem; color: var(--text-muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .slack-time { font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
+
+    /* ── CALENDAR ITEM ── */
+    .cal-item {
+      display: flex;
+      align-items: stretch;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+    .cal-item:hover { border-color: var(--accent2); }
+    .cal-time-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 52px;
+      flex-shrink: 0;
+    }
+    .cal-time-start { font-size: 0.9rem; font-weight: 700; color: var(--accent2); }
+    .cal-time-end   { font-size: 0.7rem; color: var(--text-muted); }
+    .cal-divider { width: 2px; background: var(--border); border-radius: 1px; flex-shrink: 0; }
+    .cal-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+    .cal-title { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .cal-meta  { font-size: 0.72rem; color: var(--text-muted); }
+    .cal-dur   { font-size: 0.68rem; color: var(--text-muted); }
+    .cal-badge {
+      font-size: 0.66rem;
+      padding: 2px 7px;
+      border-radius: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      align-self: flex-start;
+      margin-top: 4px;
+    }
+    .cal-accepted { background:rgba(76,175,80,0.15); color:var(--green); border:1px solid rgba(76,175,80,0.3); }
+
+    /* ── JIRA ITEM ── */
+    .jira-list { display: flex; flex-direction: column; gap: 9px; }
+    .jira-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      padding: 11px 13px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+    .jira-item:hover { border-color: var(--orange); }
+    .jira-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+    .p-high   { background:var(--red); box-shadow:0 0 6px rgba(239,83,80,.5); }
+    .p-medium { background:var(--yellow); box-shadow:0 0 6px rgba(255,193,7,.5); }
+    .p-low    { background:var(--green); box-shadow:0 0 6px rgba(76,175,80,.5); }
+    .jira-body { flex: 1; min-width: 0; }
+    .jira-key  { font-size: 0.7rem; color: var(--accent); font-weight: 700; font-family: monospace; margin-bottom: 2px; }
+    .jira-summary { font-size: 0.86rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .jira-meta { display: flex; align-items: center; gap: 7px; margin-top: 5px; flex-wrap: wrap; }
+    .status-pill {
+      font-size: 0.66rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .s-todo { background:rgba(66,165,245,0.15); color:var(--blue); border:1px solid rgba(66,165,245,0.3); }
+    .s-inprogress { background:rgba(255,152,0,0.15); color:var(--orange); border:1px solid rgba(255,152,0,0.3); }
+    .s-waiting { background:rgba(124,109,250,0.15); color:#a89cff; border:1px solid rgba(124,109,250,0.3); }
+    .jira-date { font-size: 0.68rem; color: var(--text-muted); }
+
+    /* ── KPI ── */
+    .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .kpi-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .kpi-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .kpi-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text);
+      outline: none;
+      background: transparent;
+      border: none;
+      width: 100%;
+    }
+    .kpi-value:focus { color: var(--accent2); }
+    .kpi-sub { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; outline: none; background: transparent; border: none; width: 100%; }
+    .kpi-sub:focus { color: var(--text); }
+
+    /* ── TODO ── */
+    .todo-list { display: flex; flex-direction: column; gap: 7px; }
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 11px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: opacity 0.2s;
+    }
+    .todo-item.done { opacity: 0.42; }
+    .todo-item.done .todo-text { text-decoration: line-through; }
+    .todo-check {
+      width: 18px; height: 18px;
+      border-radius: 5px;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.72rem;
+      color: #fff;
+      transition: all 0.15s;
+    }
+    .todo-item.done .todo-check { background: var(--accent); border-color: var(--accent); }
+    .todo-text {
+      flex: 1;
+      font-size: 0.86rem;
+      color: var(--text);
+      outline: none;
+      background: transparent;
+      border: none;
+      cursor: text;
+    }
+    .todo-del {
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      opacity: 0;
+      transition: opacity 0.15s;
+      background: none;
+      border: none;
+      line-height: 1;
+    }
+    .todo-item:hover .todo-del { opacity: 1; }
+    .todo-add {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: transparent;
+      border: 1.5px dashed var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 0.83rem;
+      width: 100%;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .todo-add:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── FOOTER ── */
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      padding-bottom: 8px;
+    }
+    .footer span { color: var(--accent); }
+
+    /* avatar colors */
+    .av-a { background: linear-gradient(135deg,#7c6dfa,#4fc3f7); }
+    .av-b { background: linear-gradient(135deg,#ef5350,#ff9800); }
+    .av-c { background: linear-gradient(135deg,#26a69a,#4caf50); }
+    .av-d { background: linear-gradient(135deg,#ec407a,#f48fb1); }
+    .av-e { background: linear-gradient(135deg,#ff9800,#ffc107); }
+    .av-f { background: linear-gradient(135deg,#42a5f5,#7c6dfa); }
+    .av-g { background: linear-gradient(135deg,#26c6da,#4caf50); }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-left">
+    <h1>Good morning, Adil 👋</h1>
+    <div class="sub" id="dateLabel">Loading…</div>
+  </div>
+  <div class="header-right">
+    <div class="date-chip" id="dateChip">–</div>
+    <div class="clock" id="clock">–:–</div>
+  </div>
+</div>
+
+<!-- ── ROW 1: EMAIL / SLACK / CALENDAR ── -->
+<div class="grid">
+
+  <!-- EMAILS -->
+  <div class="card purple col-4">
+    <div class="card-header">
+      <div class="card-title">
+        <div class="card-icon icon-purple">📧</div>
+        Unread Emails
+      </div>
+      <span class="badge badge-live">● Live · 6</span>
+    </div>
+    <div class="scroll-list">
+
+      <a class="email-item" href="https://mail.google.com/mail/u/0/#inbox/19d4e4b1896623cf" target="_blank">
+        <div class="unread-dot"></div>
+        <div class="email-avatar av-a">AN</div>
+        <div class="email-body">
+          <div class="email-from">Anthropic</div>
+          <div class="email-subject">Your seat was upgraded</div>
+          <div class="email-preview">Your admin just upgraded your seat. You now have more Claude usage.</div>
+        </div>
+        <div class="email-time">1:03 PM</div>
+      </a>
+
+      <a class="email-item" href="https://mail.google.com/mail/u/0/#inbox/19d4e2c4f2eeaa12" target="_blank">
+        <div class="unread-dot"></div>
+        <div class="email-avatar av-b">SM</div>
+        <div class="email-body">
+          <div class="email-from">Samad Majidi</div>
+          <div class="email-subject">GRV Stock Picture</div>
+          <div class="email-preview">Format changed, missing key pieces: Warehouse Name, etc.</div>
+        </div>
+        <div class="email-time">12:30 PM</div>
+      </a>
+
+      <a class="email-item" href="https://mail.google.com/mail/u/0/#inbox/19d4e144d2e2aeaf" target="_blank">
+        <div class="unread-dot"></div>
+        <div class="email-avatar av-c">GE</div>
+        <div class="email-body">
+          <div class="email-from">Geodis EMEA (Tijana)</div>
+          <div class="email-subject">RE: SKU ID Update - Germany</div>
+          <div class="email-preview">Hi Adil, We will provide this to warehouse, and they will update it.</div>
+        </div>
+        <div class="email-time">12:04 PM</div>
+      </a>
+
+      <a class="email-item" href="https://mail.google.com/mail/u/0/#inbox/19d4e10ffd13fd5c" target="_blank">
+        <div class="unread-dot"></div>
+        <div class="email-avatar av-c">GE</div>
+        <div class="email-body">
+          <div class="email-from">Geodis EMEA (Tijana)</div>
+          <div class="email-subject">RE: Item Code Update - Dreieich</div>
+          <div class="email-preview">Hi Samad, We provided this to warehouse team and they will update it.</div>
+        </div>
+        <div class="email-time">12:00 PM</div>
+      </a>
+
+      <a class="email-item" href="https://mail.google.com/mail/u/0/#inbox/19d4e38a1c50a2fe" target="_blank">
+        <div class="unread-dot"></div>
+        <div class="email-avatar av-c">GE</div>
+        <div class="email-body">
+          <div class="email-from">Geodis EMEA (via olu@)</div>
+          <div class="email-subject">RE: OCB - PRODBOARD</div>
+          <div class="email-preview">Hi Olu, Quote for that would be 52€ and UPS would do the pickup.</div>
+        </div>
+        <div class="email-time">12:43 PM</div>
+      </a>
+
+      <a class="email-item" href="https://mail.google.com/mail/u/0/#inbox/19d4e2cefe709e58" target="_blank">
+        <div class="unread-dot"></div>
+        <div class="email-avatar av-c">GE</div>
+        <div class="email-body">
+          <div class="email-from">Geodis EMEA (via olu@)</div>
+          <div class="email-subject">RE: OCB - PRODBOARD</div>
+          <div class="email-preview">Hi Olu, Let me check and get back to you.</div>
+        </div>
+        <div class="email-time">12:30 PM</div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- SLACK -->
+  <div class="card blue col-4">
+    <div class="card-header">
+      <div class="card-title">
+        <div class="card-icon icon-blue">💬</div>
+        Slack Mentions
+      </div>
+      <span class="badge badge-live">● Live · 5</span>
+    </div>
+    <div class="scroll-list">
+
+      <a class="slack-item" href="https://appdirect.slack.com/archives/D0ANEAH0XMW/p1774363146438949" target="_blank">
+        <div class="slack-avatar av-f">CA</div>
+        <div class="slack-body">
+          <div><span class="slack-from">Chirag Ahir</span><span class="slack-channel">· DM</span></div>
+          <div class="slack-msg">Not yet, I am still in discussion with Neil. I will update you before EOD.</div>
+        </div>
+        <div class="slack-time">Mar 24</div>
+      </a>
+
+      <a class="slack-item" href="https://appdirect.slack.com/archives/D098JPCDK4K/p1773670272753459" target="_blank">
+        <div class="slack-avatar av-d">PL</div>
+        <div class="slack-body">
+          <div><span class="slack-from">Paige Luetkemeyer</span><span class="slack-channel">· DM</span></div>
+          <div class="slack-msg">Thank you Adil! I will ask OneTrust for the specs on these serials.</div>
+        </div>
+        <div class="slack-time">Mar 16</div>
+      </a>
+
+      <a class="slack-item" href="https://appdirect.slack.com/archives/D098JPAU4RH/p1773338163315669" target="_blank">
+        <div class="slack-avatar av-e">SK</div>
+        <div class="slack-body">
+          <div><span class="slack-from">Subtain Khan</span><span class="slack-channel">· DM</span></div>
+          <div class="slack-msg">Boss, I need your help with a few order IDs for Wise UK reconciliation.</div>
+        </div>
+        <div class="slack-time">Mar 12</div>
+      </a>
+
+      <a class="slack-item" href="https://appdirect.slack.com/archives/D098JPAHAM9/p1771604830777419" target="_blank">
+        <div class="slack-avatar av-b">AS</div>
+        <div class="slack-body">
+          <div><span class="slack-from">Amy Smith</span><span class="slack-channel">· DM</span></div>
+          <div class="slack-msg">Order delivered to Geodis - Oshawa CAN yesterday. ETA on receiving? What is the SLO?</div>
+        </div>
+        <div class="slack-time">Feb 20</div>
+      </a>
+
+      <a class="slack-item" href="https://appdirect.slack.com/archives/C098JRBDX5Z/p1733351223265359" target="_blank">
+        <div class="slack-avatar av-g">MD</div>
+        <div class="slack-body">
+          <div><span class="slack-from">Molly Durham</span><span class="slack-channel">· Group DM</span></div>
+          <div class="slack-msg">We just don't send the ASN in some cases (@Adil can you expand on this) because it's pointless.</div>
+        </div>
+        <div class="slack-time">Dec 5</div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="card teal col-4">
+    <div class="card-header">
+      <div class="card-title">
+        <div class="card-icon icon-teal">📅</div>
+        Today's Meetings
+      </div>
+      <span class="badge badge-live">● Live · 3</span>
+    </div>
+    <div class="scroll-list">
+
+      <a class="cal-item" href="https://www.google.com/calendar/event?eid=XzYwcTMwYzFnNjBvMzBlMWk2MG80YWMxZzYwcmo4Z3BsODhyajJjMWg4NHMzNGg5ZzYwczMwYzFnNjBvMzBjMWc4Y28zZ2QyMzZrcWthY2hpODhxazhnaGc2NG8zMGMxZzYwbzMwYzFnNjBvMzBjMWc2MG8zMmMxZzYwbzMwYzFnNmtwajJlMjQ4ZDBqaWRwajhsMmoyZ2hrNmNzNDRncHA2OHIzYWU5bDZsMWsyZGEzNmtvMF8yMDI2MDQwMlQwOTMwMDBaIGFkaWwua2hhbi1pY0BmaXJzdGJhc2UuY29t" target="_blank">
+        <div class="cal-time-block">
+          <div class="cal-time-start">2:30</div>
+          <div class="cal-time-end">3:00 PM</div>
+        </div>
+        <div class="cal-divider"></div>
+        <div class="cal-body">
+          <div class="cal-title">Weekly Firstbase Catch Up</div>
+          <div class="cal-meta">📍 Microsoft Teams · 8 attendees</div>
+          <div class="cal-badge cal-accepted">✓ Accepted · 30 min</div>
+        </div>
+      </a>
+
+      <a class="cal-item" href="https://www.google.com/calendar/event?eid=NGxtY284Y21iMG9ocnZzNzViNnRtMmgydnJfMjAyNjA0MDJUMTMzMDAwWiBhZGlsLmtoYW4taWNAZmlyc3RiYXNlLmNvbQ" target="_blank">
+        <div class="cal-time-block">
+          <div class="cal-time-start">6:30</div>
+          <div class="cal-time-end">7:15 PM</div>
+        </div>
+        <div class="cal-divider"></div>
+        <div class="cal-body">
+          <div class="cal-title">War Room - All Geos</div>
+          <div class="cal-meta">👥 23 attendees · org: Olu</div>
+          <div class="cal-badge cal-accepted">✓ Accepted · 45 min</div>
+        </div>
+      </a>
+
+      <a class="cal-item" href="https://www.google.com/calendar/event?eid=NW1wOXQ0M205ZzhzdXM1aHFxa2FqMGo5dXQgYWRpbC5raGFuLWljQGZpcnN0YmFzZS5jb20" target="_blank">
+        <div class="cal-time-block">
+          <div class="cal-time-start">7:30</div>
+          <div class="cal-time-end">8:30 PM</div>
+        </div>
+        <div class="cal-divider"></div>
+        <div class="cal-body">
+          <div class="cal-title">Full Team India Check In</div>
+          <div class="cal-meta">👥 8 attendees · org: Robert Pridgen</div>
+          <div class="cal-badge cal-accepted">✓ Accepted · 1 hr</div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- JIRA -->
+  <div class="card orange col-7">
+    <div class="card-header">
+      <div class="card-title">
+        <div class="card-icon icon-orange">🎯</div>
+        My Jira Tasks (CS-OPs)
+      </div>
+      <span class="badge badge-live">● Live · 5 open</span>
+    </div>
+    <div class="jira-list">
+
+      <a class="jira-item" href="https://appdirect.jira.com/browse/COT-25386" target="_blank">
+        <div class="jira-dot p-medium"></div>
+        <div class="jira-body">
+          <div class="jira-key">COT-25386</div>
+          <div class="jira-summary">Order #14d7d7f7 Issue — incorrect storage & memory specs (Tanium)</div>
+          <div class="jira-meta"><span class="status-pill s-waiting">Awaiting Info</span><span class="jira-date">Mar 24</span></div>
+        </div>
+      </a>
+
+      <a class="jira-item" href="https://appdirect.jira.com/browse/COT-25221" target="_blank">
+        <div class="jira-dot p-high"></div>
+        <div class="jira-body">
+          <div class="jira-key">COT-25221</div>
+          <div class="jira-summary">MaryRuth — Shipment issue (MacBook Pro 14" returned to shipper)</div>
+          <div class="jira-meta"><span class="status-pill s-waiting">Awaiting Info</span><span class="jira-date">Mar 17</span></div>
+        </div>
+      </a>
+
+      <a class="jira-item" href="https://appdirect.jira.com/browse/COT-24884" target="_blank">
+        <div class="jira-dot p-high"></div>
+        <div class="jira-body">
+          <div class="jira-key">COT-24884</div>
+          <div class="jira-summary">Shipment Notice from EU // Carta — stuck in processing status</div>
+          <div class="jira-meta"><span class="status-pill s-inprogress">In Progress</span><span class="jira-date">Mar 4</span></div>
+        </div>
+      </a>
+
+      <a class="jira-item" href="https://appdirect.jira.com/browse/COT-24840" target="_blank">
+        <div class="jira-dot p-high"></div>
+        <div class="jira-body">
+          <div class="jira-key">COT-24840</div>
+          <div class="jira-summary">Discord — Kitting in EU, SG & MY for Laptop + Power Cable</div>
+          <div class="jira-meta"><span class="status-pill s-todo">To Do</span><span class="jira-date">Mar 3</span></div>
+        </div>
+      </a>
+
+      <a class="jira-item" href="https://appdirect.jira.com/browse/COT-24476" target="_blank">
+        <div class="jira-dot p-high"></div>
+        <div class="jira-body">
+          <div class="jira-key">COT-24476</div>
+          <div class="jira-summary">Pax8 — Wrong item received (Voyager Surround vs Focus 2)</div>
+          <div class="jira-meta"><span class="status-pill s-todo">To Do</span><span class="jira-date">Feb 17</span></div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- KPIs + TODO stacked -->
+  <div class="col-5" style="display:flex;flex-direction:column;gap:16px;">
+
+    <!-- KPIs -->
+    <div class="card green" style="flex-shrink:0;">
+      <div class="card-header">
+        <div class="card-title">
+          <div class="card-icon icon-green">📊</div>
+          Key Metrics
+        </div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-box">
+          <div class="kpi-label">Open Tickets</div>
+          <div class="kpi-value" contenteditable="true">5</div>
+          <div class="kpi-sub" contenteditable="true">assigned to me</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">High Priority</div>
+          <div class="kpi-value" contenteditable="true">4</div>
+          <div class="kpi-sub" contenteditable="true">need attention</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">Unread Emails</div>
+          <div class="kpi-value" contenteditable="true">6</div>
+          <div class="kpi-sub" contenteditable="true">in inbox today</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">Meetings Today</div>
+          <div class="kpi-value" contenteditable="true">3</div>
+          <div class="kpi-sub" contenteditable="true">starting at 2:30 PM</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TODO -->
+    <div class="card pink" style="flex:1;">
+      <div class="card-header">
+        <div class="card-title">
+          <div class="card-icon icon-pink">✅</div>
+          Today's To-Do
+        </div>
+      </div>
+      <div class="todo-list" id="todoList">
+        <div class="todo-item" onclick="toggleTodo(this)">
+          <div class="todo-check"></div>
+          <div class="todo-text" contenteditable="true" onclick="event.stopPropagation()">Follow up on MaryRuth MacBook shipment return</div>
+          <button class="todo-del" onclick="delTodo(event,this)">×</button>
+        </div>
+        <div class="todo-item" onclick="toggleTodo(this)">
+          <div class="todo-check"></div>
+          <div class="todo-text" contenteditable="true" onclick="event.stopPropagation()">Check on Pax8 wrong item resolution (COT-24476)</div>
+          <button class="todo-del" onclick="delTodo(event,this)">×</button>
+        </div>
+        <div class="todo-item" onclick="toggleTodo(this)">
+          <div class="todo-check"></div>
+          <div class="todo-text" contenteditable="true" onclick="event.stopPropagation()">Reply to Samad re: GRV Stock Picture report format</div>
+          <button class="todo-del" onclick="delTodo(event,this)">×</button>
+        </div>
+        <div class="todo-item" onclick="toggleTodo(this)">
+          <div class="todo-check"></div>
+          <div class="todo-text" contenteditable="true" onclick="event.stopPropagation()">Prep for War Room - All Geos (6:30 PM)</div>
+          <button class="todo-del" onclick="delTodo(event,this)">×</button>
+        </div>
+      </div>
+      <button class="todo-add" onclick="addTodo()">＋ Add task</button>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="footer">
+  Dashboard for <span>Adil Khan</span> · Firstbase · Data as of <span id="refreshLabel">–</span>
+</div>
+
+<script>
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    document.getElementById('clock').textContent = h+':'+m;
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const dateStr = days[now.getDay()]+', '+months[now.getMonth()]+' '+now.getDate()+', '+now.getFullYear();
+    document.getElementById('dateLabel').textContent = 'Have a great day!';
+    document.getElementById('dateChip').textContent = dateStr;
+    document.getElementById('refreshLabel').textContent = dateStr + ' · ' + h+':'+m;
+  }
+  updateClock();
+  setInterval(updateClock, 30000);
+
+  function toggleTodo(item) {
+    item.classList.toggle('done');
+    item.querySelector('.todo-check').textContent = item.classList.contains('done') ? '✓' : '';
+  }
+  function delTodo(e, btn) {
+    e.stopPropagation();
+    btn.closest('.todo-item').remove();
+  }
+  function addTodo() {
+    const list = document.getElementById('todoList');
+    const div = document.createElement('div');
+    div.className = 'todo-item';
+    div.onclick = function(){ toggleTodo(this); };
+    div.innerHTML = `<div class="todo-check"></div><div class="todo-text" contenteditable="true" onclick="event.stopPropagation()">New task…</div><button class="todo-del" onclick="delTodo(event,this)">×</button>`;
+    list.appendChild(div);
+    setTimeout(()=>{ const t=div.querySelector('.todo-text'); t.focus(); const r=document.createRange(); r.selectNodeContents(t); const s=window.getSelection(); s.removeAllRanges(); s.addRange(r); },50);
+  }
+</script>
+</body>
+</html>
