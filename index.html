@@ -1,906 +1,662 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Adil's Morning Dashboard</title>
-  <style>
-    :root {
-      --bg: #0d0f18;
-      --surface: #151722;
-      --surface2: #1d2035;
-      --border: #272b45;
-      --accent: #7c6dfa;
-      --accent2: #4fc3f7;
-      --text: #e8eaf6;
-      --text-muted: #6b74a0;
-      --green: #4caf50;
-      --yellow: #ffc107;
-      --red: #ef5350;
-      --blue: #42a5f5;
-      --orange: #ff9800;
-      --radius: 14px;
-      --shadow: 0 4px 28px rgba(0,0,0,0.4);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 20px 24px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adil's Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-    /* ── HEADER ── */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 22px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .header-left h1 {
-      font-size: 1.7rem;
-      font-weight: 700;
-      background: linear-gradient(100deg,#7c6dfa,#4fc3f7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .header-left .sub { color: var(--text-muted); font-size: 0.83rem; margin-top: 3px; }
-    .header-right { display: flex; align-items: center; gap: 10px; }
-    .clock {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 15px;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--accent2);
-      letter-spacing: 2px;
-    }
-    .date-chip {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 13px;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
+  :root {
+    --bg: #f0f7ff;
+    --card: #ffffff;
+    --primary: #2563eb;
+    --primary-light: #dbeafe;
+    --primary-dark: #1e40af;
+    --accent: #3b82f6;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: #bfdbfe;
+    --success: #10b981;
+    --success-bg: #d1fae5;
+    --warning: #f59e0b;
+    --warning-bg: #fef3c7;
+    --danger: #ef4444;
+    --danger-bg: #fee2e2;
+    --info: #06b6d4;
+    --info-bg: #cffafe;
+    --shadow: 0 1px 3px rgba(37, 99, 235, 0.08), 0 4px 12px rgba(37, 99, 235, 0.04);
+    --shadow-hover: 0 4px 16px rgba(37, 99, 235, 0.12), 0 8px 24px rgba(37, 99, 235, 0.06);
+  }
 
-    /* ── REFRESH BUTTON ── */
-    .refresh-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 14px;
-      background: rgba(124,109,250,0.12);
-      border: 1px solid rgba(124,109,250,0.35);
-      border-radius: 10px;
-      color: var(--accent);
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s;
-    }
-    .refresh-btn:hover { background: rgba(124,109,250,0.22); border-color: var(--accent); }
-    .refresh-btn.spinning .spin-icon { animation: spin 0.7s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spin-icon { display: inline-block; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    /* countdown pill */
-    .refresh-countdown {
-      font-size: 0.68rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
 
-    /* ── TOAST ── */
-    #toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: #22263a;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 20px;
-      font-size: 0.83rem;
-      color: var(--text);
-      transition: transform 0.3s ease;
-      z-index: 999;
-      pointer-events: none;
-    }
-    #toast.show { transform: translateX(-50%) translateY(0); }
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+    padding: 32px 40px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .greeting {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .date-line {
+    font-size: 15px;
+    opacity: 0.85;
+    font-weight: 400;
+  }
+  .header-stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+  }
+  .stat-chip {
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .stat-chip .num {
+    font-size: 20px;
+    font-weight: 700;
+  }
 
-    /* ── GRID ── */
-    .grid { display: grid; grid-template-columns: repeat(12,1fr); gap: 15px; }
-    .col-4  { grid-column: span 4; }
-    .col-5  { grid-column: span 5; }
-    .col-7  { grid-column: span 7; }
-    .col-12 { grid-column: span 12; }
-    @media(max-width:1100px){ .col-4{ grid-column:span 6; } .col-5,.col-7{ grid-column:span 12; } }
-    @media(max-width:700px){ .col-4,.col-5,.col-7,.col-12{ grid-column:span 12; } }
+  /* Main grid */
+  .main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 28px 40px 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
 
-    /* ── CARD ── */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 17px 19px;
-      box-shadow: var(--shadow);
-      display: flex;
-      flex-direction: column;
-      gap: 11px;
-      position: relative;
-      overflow: hidden;
-    }
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      border-radius: var(--radius) var(--radius) 0 0;
-    }
-    .card.purple::before { background: linear-gradient(90deg,#7c6dfa,#9c55f5); }
-    .card.blue::before   { background: linear-gradient(90deg,#42a5f5,#4fc3f7); }
-    .card.teal::before   { background: linear-gradient(90deg,#26a69a,#80cbc4); }
-    .card.orange::before { background: linear-gradient(90deg,#ff9800,#ffb74d); }
-    .card.green::before  { background: linear-gradient(90deg,#4caf50,#81c784); }
-    .card.pink::before   { background: linear-gradient(90deg,#ec407a,#f48fb1); }
+  /* Cards */
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+  }
+  .card:hover {
+    box-shadow: var(--shadow-hover);
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid #e8f0fe;
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-title .icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .card-badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .card-body {
+    padding: 8px 0;
+  }
 
-    .card-header { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-shrink:0; }
-    .card-title  { display:flex; align-items:center; gap:8px; font-weight:600; font-size:0.91rem; }
-    .card-icon   { width:29px; height:29px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:0.92rem; flex-shrink:0; }
-    .icon-purple { background:rgba(124,109,250,0.2); }
-    .icon-blue   { background:rgba(66,165,245,0.2); }
-    .icon-teal   { background:rgba(38,166,154,0.2); }
-    .icon-orange { background:rgba(255,152,0,0.2); }
-    .icon-green  { background:rgba(76,175,80,0.2); }
-    .icon-pink   { background:rgba(236,64,122,0.2); }
+  /* Calendar styles */
+  .cal-icon { background: var(--primary-light); }
+  .event-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 22px;
+    gap: 14px;
+    transition: background 0.15s;
+    cursor: default;
+  }
+  .event-item:hover { background: #f8fbff; }
+  .event-time {
+    min-width: 70px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    padding-top: 2px;
+  }
+  .event-details { flex: 1; }
+  .event-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .event-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .event-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .dot-now { background: var(--success); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+  .dot-upcoming { background: var(--accent); }
+  .dot-allday { background: var(--warning); }
+  .day-divider {
+    padding: 8px 22px 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
 
-    .badge { font-size:0.68rem; font-weight:700; padding:3px 9px; border-radius:20px; letter-spacing:0.3px; white-space:nowrap; }
-    .badge-live  { background:rgba(76,175,80,0.15); color:var(--green); border:1px solid rgba(76,175,80,0.3); }
+  /* Jira styles */
+  .jira-icon { background: #e0e7ff; }
+  .ticket-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 22px;
+    gap: 14px;
+    transition: background 0.15s;
+  }
+  .ticket-item:hover { background: #f8fbff; }
+  .ticket-item a {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    width: 100%;
+  }
+  .ticket-key {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary);
+    min-width: 90px;
+    padding-top: 2px;
+  }
+  .ticket-info { flex: 1; }
+  .ticket-summary {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 4px;
+    line-height: 1.4;
+  }
+  .ticket-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .tag-progress { background: #fef3c7; color: #92400e; }
+  .tag-todo { background: #e0e7ff; color: #3730a3; }
+  .tag-high { background: #fee2e2; color: #991b1b; }
+  .tag-medium { background: #fef9c3; color: #854d0e; }
 
-    /* ── SCROLL LIST ── */
-    .scroll-list { display:flex; flex-direction:column; gap:7px; max-height:300px; overflow-y:auto; padding-right:3px; }
-    .scroll-list::-webkit-scrollbar { width:3px; }
-    .scroll-list::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+  /* Email styles */
+  .email-icon { background: #dcfce7; }
+  .empty-state {
+    padding: 32px 22px;
+    text-align: center;
+  }
+  .empty-state .emoji {
+    font-size: 36px;
+    margin-bottom: 10px;
+  }
+  .empty-state .title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .empty-state .subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
 
-    /* ── EMAIL ── */
-    .email-item {
-      display:flex; align-items:flex-start; gap:9px;
-      padding:10px 12px; background:var(--surface2);
-      border:1px solid var(--border); border-radius:10px;
-      text-decoration:none; transition:border-color 0.2s;
-    }
-    .email-item:hover { border-color:var(--accent); }
-    .email-avatar { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; color:#fff; flex-shrink:0; }
-    .email-body { flex:1; min-width:0; }
-    .email-from    { font-size:0.76rem; font-weight:700; color:var(--text); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .email-subject { font-size:0.81rem; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .email-preview { font-size:0.7rem; color:var(--text-muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .email-time  { font-size:0.66rem; color:var(--text-muted); white-space:nowrap; flex-shrink:0; }
-    .unread-dot  { width:6px; height:6px; border-radius:50%; background:var(--accent); flex-shrink:0; margin-top:4px; }
+  /* Slack styles */
+  .slack-icon { background: #fce7f3; }
+  .slack-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 22px;
+    gap: 12px;
+    transition: background 0.15s;
+  }
+  .slack-item:hover { background: #f8fbff; }
+  .slack-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary-light), #c7d2fe);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary-dark);
+    flex-shrink: 0;
+  }
+  .slack-content { flex: 1; min-width: 0; }
+  .slack-sender {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .slack-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.5;
+  }
+  .slack-channel {
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 500;
+  }
 
-    /* ── SLACK ── */
-    .slack-item {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-      transition: border-color 0.2s;
-    }
-    .slack-item:hover { border-color: var(--blue); }
-    .slack-main {
-      display: flex;
-      align-items: flex-start;
-      gap: 9px;
-      padding: 10px 12px;
-    }
-    .slack-avatar { width:30px; height:30px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; color:#fff; flex-shrink:0; }
-    .slack-body { flex:1; min-width:0; }
-    .slack-from { font-size:0.76rem; font-weight:700; color:var(--text); }
-    .slack-chan  { font-size:0.66rem; color:var(--text-muted); margin-left:5px; }
-    .slack-msg  { font-size:0.79rem; color:var(--text-muted); margin-top:3px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-    .slack-time { font-size:0.66rem; color:var(--text-muted); white-space:nowrap; flex-shrink:0; }
+  /* Tab controls */
+  .tab-group {
+    display: flex;
+    gap: 2px;
+    padding: 0 22px;
+    margin-bottom: 4px;
+  }
+  .tab-btn {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tab-btn:hover { background: var(--primary-light); color: var(--primary); }
+  .tab-btn.active { background: var(--primary); color: white; }
 
-    /* Slack actions row */
-    .slack-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 0 12px 8px 51px;
-    }
-    .slack-reply-btn {
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .slack-reply-btn:hover { border-color: var(--blue); color: var(--blue); }
-    .slack-open-btn {
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 6px;
-      border: 1px solid rgba(66,165,245,0.3);
-      background: rgba(66,165,245,0.08);
-      color: var(--blue);
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.15s;
-    }
-    .slack-open-btn:hover { background: rgba(66,165,245,0.18); }
+  /* Responsive */
+  @media (max-width: 900px) {
+    .main { grid-template-columns: 1fr; padding: 16px; }
+    .header { padding: 24px 16px; }
+    .header-stats { flex-wrap: wrap; gap: 10px; }
+  }
 
-    /* Slack reply compose */
-    .slack-compose {
-      display: none;
-      padding: 0 12px 10px 51px;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .slack-compose.open { display: flex; }
-    .slack-compose textarea {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 10px;
-      color: var(--text);
-      font-size: 0.82rem;
-      font-family: inherit;
-      resize: vertical;
-      min-height: 60px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .slack-compose textarea:focus { border-color: var(--blue); }
-    .slack-compose textarea::placeholder { color: var(--text-muted); }
-    .compose-row { display: flex; align-items: center; gap: 7px; }
-    .send-btn {
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 5px 14px;
-      border-radius: 7px;
-      border: none;
-      background: var(--blue);
-      color: #fff;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .send-btn:hover { opacity: 0.85; }
-    .cancel-btn {
-      font-size: 0.75rem;
-      padding: 5px 10px;
-      border-radius: 7px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-    }
-    .send-hint { font-size: 0.68rem; color: var(--text-muted); }
+  /* Scrollable card body */
+  .card-body-scroll {
+    max-height: 340px;
+    overflow-y: auto;
+    padding: 8px 0;
+  }
+  .card-body-scroll::-webkit-scrollbar { width: 4px; }
+  .card-body-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-    /* ── CALENDAR ── */
-    .cal-item {
-      display:flex; align-items:stretch; gap:11px;
-      padding:11px 13px; background:var(--surface2);
-      border:1px solid var(--border); border-radius:10px;
-      cursor:pointer; text-decoration:none; transition:border-color 0.2s;
-    }
-    .cal-item:hover { border-color:var(--accent2); }
-    .cal-time-block { display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:50px; flex-shrink:0; }
-    .cal-time-start { font-size:0.88rem; font-weight:700; color:var(--accent2); }
-    .cal-time-end   { font-size:0.68rem; color:var(--text-muted); }
-    .cal-divider    { width:2px; background:var(--border); border-radius:1px; flex-shrink:0; }
-    .cal-body       { flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; }
-    .cal-title      { font-size:0.86rem; font-weight:600; color:var(--text); margin-bottom:3px; }
-    .cal-meta       { font-size:0.7rem; color:var(--text-muted); }
-    .cal-badge      { font-size:0.64rem; padding:2px 7px; border-radius:12px; font-weight:600; display:inline-block; margin-top:4px; }
-    .cal-accepted   { background:rgba(76,175,80,0.15); color:var(--green); border:1px solid rgba(76,175,80,0.3); }
-    .cal-empty      { color:var(--text-muted); font-size:0.82rem; text-align:center; padding:20px; }
-
-    /* ── JIRA ── */
-    .jira-list { display:flex; flex-direction:column; gap:8px; }
-    .jira-item {
-      display:flex; align-items:flex-start; gap:10px;
-      padding:10px 12px; background:var(--surface2);
-      border:1px solid var(--border); border-radius:10px;
-      text-decoration:none; transition:border-color 0.2s;
-    }
-    .jira-item:hover { border-color:var(--orange); }
-    .jira-dot { width:8px; height:8px; border-radius:50%; margin-top:5px; flex-shrink:0; }
-    .p-high   { background:var(--red); box-shadow:0 0 6px rgba(239,83,80,.5); }
-    .p-medium { background:var(--yellow); box-shadow:0 0 6px rgba(255,193,7,.5); }
-    .jira-body { flex:1; min-width:0; }
-    .jira-key  { font-size:0.68rem; color:var(--accent); font-weight:700; font-family:monospace; margin-bottom:2px; }
-    .jira-summary { font-size:0.84rem; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .jira-meta { display:flex; align-items:center; gap:6px; margin-top:4px; flex-wrap:wrap; }
-    .status-pill { font-size:0.64rem; font-weight:700; padding:2px 8px; border-radius:12px; text-transform:uppercase; letter-spacing:0.3px; }
-    .s-todo       { background:rgba(66,165,245,0.15); color:var(--blue); border:1px solid rgba(66,165,245,0.3); }
-    .s-inprogress { background:rgba(255,152,0,0.15); color:var(--orange); border:1px solid rgba(255,152,0,0.3); }
-    .s-waiting    { background:rgba(124,109,250,0.15); color:#a89cff; border:1px solid rgba(124,109,250,0.3); }
-    .jira-date { font-size:0.67rem; color:var(--text-muted); }
-
-    /* ── KPI ── */
-    .kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
-    .kpi-box  { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:11px 13px; }
-    .kpi-label { font-size:0.66rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
-    .kpi-value { font-size:1.4rem; font-weight:800; color:var(--text); outline:none; background:transparent; border:none; width:100%; }
-    .kpi-value:focus { color:var(--accent2); }
-    .kpi-sub   { font-size:0.68rem; color:var(--text-muted); outline:none; background:transparent; border:none; width:100%; }
-    .kpi-sub:focus { color:var(--text); }
-
-    /* ── TODO ── */
-    .todo-list { display:flex; flex-direction:column; gap:6px; }
-    .todo-item {
-      display:flex; align-items:center; gap:8px;
-      padding:8px 10px; background:var(--surface2);
-      border:1px solid var(--border); border-radius:8px;
-      transition:opacity 0.2s;
-    }
-    .todo-item.done { opacity:0.42; }
-    .todo-item.done .todo-text { text-decoration:line-through; }
-    .todo-check {
-      width:17px; height:17px; border-radius:5px;
-      border:2px solid var(--border); cursor:pointer;
-      display:flex; align-items:center; justify-content:center;
-      flex-shrink:0; font-size:0.7rem; color:#fff;
-      transition:all 0.15s;
-    }
-    .todo-item.done .todo-check { background:var(--accent); border-color:var(--accent); }
-    .todo-text { flex:1; font-size:0.84rem; outline:none; background:transparent; border:none; cursor:text; color:var(--text); }
-    .todo-del { color:var(--text-muted); cursor:pointer; font-size:1rem; opacity:0; transition:opacity 0.15s; background:none; border:none; }
-    .todo-item:hover .todo-del { opacity:1; }
-    .todo-add {
-      display:flex; align-items:center; gap:8px;
-      padding:7px 11px; background:transparent;
-      border:1.5px dashed var(--border); border-radius:8px;
-      cursor:pointer; color:var(--text-muted); font-size:0.82rem; width:100%;
-      transition:border-color 0.2s, color 0.2s;
-    }
-    .todo-add:hover { border-color:var(--accent); color:var(--accent); }
-
-    /* avatar colors */
-    .av-a { background:linear-gradient(135deg,#7c6dfa,#4fc3f7); }
-    .av-b { background:linear-gradient(135deg,#ef5350,#ff9800); }
-    .av-c { background:linear-gradient(135deg,#26a69a,#4caf50); }
-    .av-d { background:linear-gradient(135deg,#ec407a,#f48fb1); }
-    .av-e { background:linear-gradient(135deg,#ff9800,#ffc107); }
-    .av-f { background:linear-gradient(135deg,#42a5f5,#7c6dfa); }
-    .av-g { background:linear-gradient(135deg,#26c6da,#4caf50); }
-
-    /* ── FOOTER ── */
-    .footer { margin-top:18px; text-align:center; color:var(--text-muted); font-size:0.7rem; padding-bottom:6px; }
-    .footer span { color:var(--accent); }
-  </style>
+  /* Full-width card */
+  .full-width { grid-column: 1 / -1; }
+</style>
 </head>
 <body>
 
-<div id="toast"></div>
-
-<!-- ── HEADER ── -->
+<!-- HEADER -->
 <div class="header">
-  <div class="header-left">
-    <h1>Good morning, Adil 👋</h1>
-    <div class="sub">Have a great day — here's what needs your attention.</div>
-  </div>
-  <div class="header-right">
-    <span class="refresh-countdown" id="countdown"></span>
-    <button class="refresh-btn" id="refreshBtn" onclick="doRefresh()">
-      <span class="spin-icon" id="spinIcon">↻</span> Refresh
-    </button>
-    <div class="date-chip" id="dateChip">–</div>
-    <div class="clock" id="clock">–:–</div>
+  <div class="header-content">
+    <div class="greeting">Good afternoon, Adil</div>
+    <div class="date-line">Friday, April 10, 2026 &middot; Working from Home</div>
+    <div class="header-stats">
+      <div class="stat-chip">
+        <span class="num">2</span> Meetings today
+      </div>
+      <div class="stat-chip">
+        <span class="num">5</span> Open Jira tickets
+      </div>
+      <div class="stat-chip">
+        <span class="num">0</span> Unread emails
+      </div>
+      <div class="stat-chip">
+        <span class="num">20</span> Slack messages
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- ── ROW 1 ── -->
-<div class="grid">
+<!-- MAIN GRID -->
+<div class="main">
 
-  <!-- EMAILS -->
-  <div class="card purple col-4">
+  <!-- CALENDAR CARD -->
+  <div class="card">
     <div class="card-header">
-      <div class="card-title"><div class="card-icon icon-purple">📧</div> Unread Emails</div>
-      <span class="badge badge-live">● Live · 6</span>
+      <div class="card-title">
+        <div class="icon cal-icon">&#128197;</div>
+        Calendar
+      </div>
+      <span class="card-badge" style="background:var(--primary-light);color:var(--primary);">Today &amp; Tomorrow</span>
     </div>
-    <div class="scroll-list">
+    <div class="card-body-scroll">
+      <div class="day-divider">&#9679; Today &mdash; Friday, Apr 10</div>
 
-      <a class="email-item" href="https://mail.google.com/mail/u/0/#inbox/19d4e4b1896623cf" target="_blank">
-        <div class="unread-dot"></div>
-        <div class="email-avatar av-a">AN</div>
-        <div class="email-body">
-          <div class="email-from">Anthropic</div>
-          <div class="email-subject">Your seat was upgraded</div>
-          <div class="email-preview">Your admin upgraded your seat — you now have more Claude usage.</div>
+      <div class="event-item">
+        <div class="event-dot dot-allday"></div>
+        <div class="event-time">All day</div>
+        <div class="event-details">
+          <div class="event-name">Send Weekly Top 5 Things (T5T)</div>
+          <div class="event-meta">Recurring reminder &middot; from Emily</div>
         </div>
-        <div class="email-time">1:03 PM</div>
-      </a>
+      </div>
 
-      <a class="email-item" href="https://mail.google.com/mail/u/0/#inbox/19d4e2c4f2eeaa12" target="_blank">
-        <div class="unread-dot"></div>
-        <div class="email-avatar av-b">SM</div>
-        <div class="email-body">
-          <div class="email-from">Samad Majidi</div>
-          <div class="email-subject">GRV Stock Picture</div>
-          <div class="email-preview">Stock picture report format changed — missing Warehouse Name & key fields.</div>
+      <div class="event-item">
+        <div class="event-dot dot-upcoming"></div>
+        <div class="event-time">5:00 PM</div>
+        <div class="event-details">
+          <div class="event-name">Adil / Olu &mdash; Monthly Check Up</div>
+          <div class="event-meta">30 min &middot; with Olu</div>
         </div>
-        <div class="email-time">12:30 PM</div>
-      </a>
+      </div>
 
-      <a class="email-item" href="https://mail.google.com/mail/u/0/#inbox/19d4e144d2e2aeaf" target="_blank">
-        <div class="unread-dot"></div>
-        <div class="email-avatar av-c">GE</div>
-        <div class="email-body">
-          <div class="email-from">Geodis EMEA (Tijana)</div>
-          <div class="email-subject">RE: SKU ID Update - Germany</div>
-          <div class="email-preview">Hi Adil, We will provide this to warehouse and they will update it.</div>
+      <div class="event-item">
+        <div class="event-dot dot-upcoming"></div>
+        <div class="event-time">7:30 PM</div>
+        <div class="event-details">
+          <div class="event-name">India Core Team Meeting</div>
+          <div class="event-meta">30 min &middot; 7 attendees &middot; Organized by Robert Pridgen</div>
         </div>
-        <div class="email-time">12:04 PM</div>
-      </a>
+      </div>
 
-      <a class="email-item" href="https://mail.google.com/mail/u/0/#inbox/19d4e10ffd13fd5c" target="_blank">
-        <div class="unread-dot"></div>
-        <div class="email-avatar av-c">GE</div>
-        <div class="email-body">
-          <div class="email-from">Geodis EMEA (Tijana)</div>
-          <div class="email-subject">RE: Item Code Update - Dreieich</div>
-          <div class="email-preview">Hi Samad, We provided this to warehouse team and they will update.</div>
-        </div>
-        <div class="email-time">12:00 PM</div>
-      </a>
-
-      <a class="email-item" href="https://mail.google.com/mail/u/0/#inbox/19d4e38a1c50a2fe" target="_blank">
-        <div class="unread-dot"></div>
-        <div class="email-avatar av-c">GE</div>
-        <div class="email-body">
-          <div class="email-from">Geodis EMEA (via olu@)</div>
-          <div class="email-subject">RE: OCB - PRODBOARD</div>
-          <div class="email-preview">Hi Olu, Quote for that would be 52€ and UPS would do the pickup.</div>
-        </div>
-        <div class="email-time">12:43 PM</div>
-      </a>
-
-      <a class="email-item" href="https://mail.google.com/mail/u/0/#inbox/19d4e2cefe709e58" target="_blank">
-        <div class="unread-dot"></div>
-        <div class="email-avatar av-c">GE</div>
-        <div class="email-body">
-          <div class="email-from">Geodis EMEA (via olu@)</div>
-          <div class="email-subject">RE: OCB - PRODBOARD</div>
-          <div class="email-preview">Hi Olu, Let me check and get back to you.</div>
-        </div>
-        <div class="email-time">12:30 PM</div>
-      </a>
-
+      <div class="day-divider" style="margin-top:8px;">&#9679; Tomorrow &mdash; Saturday, Apr 11</div>
+      <div class="empty-state" style="padding:16px 22px;">
+        <div class="subtitle">No meetings scheduled &mdash; enjoy the weekend!</div>
+      </div>
     </div>
   </div>
 
-  <!-- SLACK -->
-  <div class="card blue col-4">
+  <!-- JIRA CARD -->
+  <div class="card">
     <div class="card-header">
-      <div class="card-title"><div class="card-icon icon-blue">💬</div> Slack Mentions</div>
-      <span class="badge badge-live">● Live · 5</span>
+      <div class="card-title">
+        <div class="icon jira-icon">&#128203;</div>
+        Jira Tickets
+      </div>
+      <span class="card-badge" style="background:#fee2e2;color:#991b1b;">5 Open</span>
     </div>
-    <div class="scroll-list">
+    <div class="card-body-scroll">
 
-      <!-- Amy Smith -->
-      <div class="slack-item">
-        <div class="slack-main">
-          <div class="slack-avatar av-b">AS</div>
-          <div class="slack-body">
-            <div><span class="slack-from">Amy Smith</span><span class="slack-chan">· DM</span></div>
-            <div class="slack-msg">Are you able to provide when these two Inventory orders will be received? ORD-260312-0B2CC6EB, ORD-260312-5DB8F9BE</div>
+      <div class="ticket-item">
+        <a href="https://appdirect.jira.com/browse/COT-24840" target="_blank">
+          <div class="ticket-key">COT-24840</div>
+          <div class="ticket-info">
+            <div class="ticket-summary">Discord - Kitting in EU, SG, and MY for Laptop + Power Cable</div>
+            <div class="ticket-tags">
+              <span class="tag tag-progress">In Progress</span>
+              <span class="tag tag-high">High</span>
+            </div>
           </div>
-          <div class="slack-time">Mar 27</div>
-        </div>
-        <div class="slack-actions">
-          <button class="slack-reply-btn" onclick="toggleReply(this)">↩ Reply</button>
-          <a class="slack-open-btn" href="https://appdirect.slack.com/archives/D098JPAHAM9/p1774614371825839?thread_ts=1774614371.825839&cid=D098JPAHAM9" target="_blank">Open in Slack ↗</a>
-        </div>
-        <div class="slack-compose">
-          <textarea placeholder="Type your reply…"></textarea>
-          <div class="compose-row">
-            <button class="send-btn" onclick="sendSlackReply(this, 'https://appdirect.slack.com/archives/D098JPAHAM9/p1774614371825839?thread_ts=1774614371.825839&cid=D098JPAHAM9')">Send →</button>
-            <button class="cancel-btn" onclick="cancelReply(this)">Cancel</button>
-            <span class="send-hint">Copies reply & opens Slack thread</span>
-          </div>
-        </div>
+        </a>
       </div>
 
-      <!-- Ali Khalid -->
-      <div class="slack-item">
-        <div class="slack-main">
-          <div class="slack-avatar av-e">AK</div>
-          <div class="slack-body">
-            <div><span class="slack-from">Ali Khalid</span><span class="slack-chan">· DM</span></div>
-            <div class="slack-msg">ZDHV01SV - Momentus EU — yeh serial b receive krdo, m order fulfil krdn</div>
+      <div class="ticket-item">
+        <a href="https://appdirect.jira.com/browse/COT-24884" target="_blank">
+          <div class="ticket-key">COT-24884</div>
+          <div class="ticket-info">
+            <div class="ticket-summary">Shipment Notice from EU // Carta</div>
+            <div class="ticket-tags">
+              <span class="tag tag-progress">In Progress</span>
+              <span class="tag tag-high">High</span>
+            </div>
           </div>
-          <div class="slack-time">Mar 27</div>
-        </div>
-        <div class="slack-actions">
-          <button class="slack-reply-btn" onclick="toggleReply(this)">↩ Reply</button>
-          <a class="slack-open-btn" href="https://appdirect.slack.com/archives/D098JPBFMR9/p1774621082446399" target="_blank">Open in Slack ↗</a>
-        </div>
-        <div class="slack-compose">
-          <textarea placeholder="Type your reply…"></textarea>
-          <div class="compose-row">
-            <button class="send-btn" onclick="sendSlackReply(this, 'https://appdirect.slack.com/archives/D098JPBFMR9/p1774621082446399')">Send →</button>
-            <button class="cancel-btn" onclick="cancelReply(this)">Cancel</button>
-            <span class="send-hint">Copies reply & opens Slack thread</span>
-          </div>
-        </div>
+        </a>
       </div>
 
-      <!-- Subtain Khan -->
-      <div class="slack-item">
-        <div class="slack-main">
-          <div class="slack-avatar av-f">SK</div>
-          <div class="slack-body">
-            <div><span class="slack-from">Subtain Khan</span><span class="slack-chan">· DM</span></div>
-            <div class="slack-msg">Unable to flip order to ship — includes EOL M4 marked as CS, SKU not in client catalog. Please reach out to Drea.</div>
+      <div class="ticket-item">
+        <a href="https://appdirect.jira.com/browse/COT-25123" target="_blank">
+          <div class="ticket-key">COT-25123</div>
+          <div class="ticket-info">
+            <div class="ticket-summary">Laptop charger not in package - Anaplan</div>
+            <div class="ticket-tags">
+              <span class="tag tag-progress">In Progress</span>
+              <span class="tag tag-high">High</span>
+            </div>
           </div>
-          <div class="slack-time">Mar 23</div>
-        </div>
-        <div class="slack-actions">
-          <button class="slack-reply-btn" onclick="toggleReply(this)">↩ Reply</button>
-          <a class="slack-open-btn" href="https://appdirect.slack.com/archives/D098JPAU4RH/p1774282409613149?thread_ts=1774263674.060549&cid=D098JPAU4RH" target="_blank">Open in Slack ↗</a>
-        </div>
-        <div class="slack-compose">
-          <textarea placeholder="Type your reply…"></textarea>
-          <div class="compose-row">
-            <button class="send-btn" onclick="sendSlackReply(this, 'https://appdirect.slack.com/archives/D098JPAU4RH/p1774282409613149?thread_ts=1774263674.060549&cid=D098JPAU4RH')">Send →</button>
-            <button class="cancel-btn" onclick="cancelReply(this)">Cancel</button>
-            <span class="send-hint">Copies reply & opens Slack thread</span>
-          </div>
-        </div>
+        </a>
       </div>
 
-      <!-- Chirag Ahir -->
-      <div class="slack-item">
-        <div class="slack-main">
-          <div class="slack-avatar av-g">CA</div>
-          <div class="slack-body">
-            <div><span class="slack-from">Chirag Ahir</span><span class="slack-chan">· DM</span></div>
-            <div class="slack-msg">Not yet, still in discussion with Neil. Will update before EOD.</div>
+      <div class="ticket-item">
+        <a href="https://appdirect.jira.com/browse/COT-25721" target="_blank">
+          <div class="ticket-key">COT-25721</div>
+          <div class="ticket-info">
+            <div class="ticket-summary">Braze - Inquiry on Shipment Notice in the EU</div>
+            <div class="ticket-tags">
+              <span class="tag tag-todo">Awaiting Info</span>
+              <span class="tag tag-medium">Medium</span>
+            </div>
           </div>
-          <div class="slack-time">Mar 24</div>
-        </div>
-        <div class="slack-actions">
-          <button class="slack-reply-btn" onclick="toggleReply(this)">↩ Reply</button>
-          <a class="slack-open-btn" href="https://appdirect.slack.com/archives/D0ANEAH0XMW/p1774363146438949" target="_blank">Open in Slack ↗</a>
-        </div>
-        <div class="slack-compose">
-          <textarea placeholder="Type your reply…"></textarea>
-          <div class="compose-row">
-            <button class="send-btn" onclick="sendSlackReply(this, 'https://appdirect.slack.com/archives/D0ANEAH0XMW/p1774363146438949')">Send →</button>
-            <button class="cancel-btn" onclick="cancelReply(this)">Cancel</button>
-            <span class="send-hint">Copies reply & opens Slack thread</span>
-          </div>
-        </div>
+        </a>
       </div>
 
-      <!-- Paige -->
-      <div class="slack-item">
-        <div class="slack-main">
-          <div class="slack-avatar av-d">PL</div>
-          <div class="slack-body">
-            <div><span class="slack-from">Paige Luetkemeyer</span><span class="slack-chan">· DM</span></div>
-            <div class="slack-msg">Thank you Adil! I will ask OneTrust for the specs on these serials. Was the intake complete on the others?</div>
+      <div class="ticket-item">
+        <a href="https://appdirect.jira.com/browse/COT-24999" target="_blank">
+          <div class="ticket-key">COT-24999</div>
+          <div class="ticket-info">
+            <div class="ticket-summary">Nylas | Confirm All Montreal Assets Moved To Oshawa</div>
+            <div class="ticket-tags">
+              <span class="tag tag-todo">Awaiting Info</span>
+              <span class="tag tag-medium">Medium</span>
+            </div>
           </div>
-          <div class="slack-time">Mar 16</div>
-        </div>
-        <div class="slack-actions">
-          <button class="slack-reply-btn" onclick="toggleReply(this)">↩ Reply</button>
-          <a class="slack-open-btn" href="https://appdirect.slack.com/archives/D098JPCDK4K/p1773670272753459?thread_ts=1773670272.753459&cid=D098JPCDK4K" target="_blank">Open in Slack ↗</a>
-        </div>
-        <div class="slack-compose">
-          <textarea placeholder="Type your reply…"></textarea>
-          <div class="compose-row">
-            <button class="send-btn" onclick="sendSlackReply(this, 'https://appdirect.slack.com/archives/D098JPCDK4K/p1773670272753459?thread_ts=1773670272.753459&cid=D098JPCDK4K')">Send →</button>
-            <button class="cancel-btn" onclick="cancelReply(this)">Cancel</button>
-            <span class="send-hint">Copies reply & opens Slack thread</span>
-          </div>
-        </div>
+        </a>
       </div>
 
     </div>
   </div>
 
-  <!-- CALENDAR -->
-  <div class="card teal col-4">
+  <!-- EMAIL CARD -->
+  <div class="card">
     <div class="card-header">
-      <div class="card-title"><div class="card-icon icon-teal">📅</div> Today's Meetings</div>
-      <span class="badge badge-live">● Live</span>
+      <div class="card-title">
+        <div class="icon email-icon">&#9993;</div>
+        Email
+      </div>
+      <span class="card-badge" style="background:var(--success-bg);color:#065f46;">Inbox Zero</span>
     </div>
-    <div class="scroll-list" id="meetingsList">
-      <!-- Meetings injected by JS, past ones auto-removed -->
-
-      <a class="cal-item" data-end="2026-04-02T10:00:00Z" href="https://www.google.com/calendar/event?eid=XzYwcTMwYzFnNjBvMzBlMWk2MG80YWMxZzYwcmo4Z3BsODhyajJjMWg4NHMzNGg5ZzYwczMwYzFnNjBvMzBjMWc4Y28zZ2QyMzZrcWthY2hpODhxazhnaGc2NG8zMGMxZzYwbzMwYzFnNjBvMzBjMWc2MG8zMmMxZzYwbzMwYzFnNmtwajJlMjQ4ZDBqaWRwajhsMmoyZ2hrNmNzNDRncHA2OHIzYWU5bDZsMWsyZGEzNmtvMF8yMDI2MDQwMlQwOTMwMDBaIGFkaWwua2hhbi1pY0BmaXJzdGJhc2UuY29t" target="_blank">
-        <div class="cal-time-block">
-          <div class="cal-time-start">2:30</div>
-          <div class="cal-time-end">3:00 PM</div>
-        </div>
-        <div class="cal-divider"></div>
-        <div class="cal-body">
-          <div class="cal-title">Weekly Firstbase Catch Up</div>
-          <div class="cal-meta">📍 Microsoft Teams · 8 people</div>
-          <span class="cal-badge cal-accepted">✓ Accepted · 30 min</span>
-        </div>
-      </a>
-
-      <a class="cal-item" data-end="2026-04-02T14:15:00Z" href="https://www.google.com/calendar/event?eid=NGxtY284Y21iMG9ocnZzNzViNnRtMmgydnJfMjAyNjA0MDJUMTMzMDAwWiBhZGlsLmtoYW4taWNAZmlyc3RiYXNlLmNvbQ" target="_blank">
-        <div class="cal-time-block">
-          <div class="cal-time-start">6:30</div>
-          <div class="cal-time-end">7:15 PM</div>
-        </div>
-        <div class="cal-divider"></div>
-        <div class="cal-body">
-          <div class="cal-title">War Room — All Geos</div>
-          <div class="cal-meta">👥 23 attendees · org: Olu</div>
-          <span class="cal-badge cal-accepted">✓ Accepted · 45 min</span>
-        </div>
-      </a>
-
-      <a class="cal-item" data-end="2026-04-02T15:30:00Z" href="https://www.google.com/calendar/event?eid=NW1wOXQ0M205ZzhzdXM1aHFxa2FqMGo5dXQgYWRpbC5raGFuLWljQGZpcnN0YmFzZS5jb20" target="_blank">
-        <div class="cal-time-block">
-          <div class="cal-time-start">7:30</div>
-          <div class="cal-time-end">8:30 PM</div>
-        </div>
-        <div class="cal-divider"></div>
-        <div class="cal-body">
-          <div class="cal-title">Full Team India Check In</div>
-          <div class="cal-meta">👥 8 attendees · org: Robert Pridgen</div>
-          <span class="cal-badge cal-accepted">✓ Accepted · 1 hr</span>
-        </div>
-      </a>
-
+    <div class="card-body">
+      <div class="empty-state">
+        <div class="emoji">&#127881;</div>
+        <div class="title">Inbox Zero!</div>
+        <div class="subtitle">No unread emails in the last 7 days. You're all caught up.</div>
+      </div>
     </div>
   </div>
 
-  <!-- JIRA -->
-  <div class="card orange col-7">
+  <!-- SLACK CARD -->
+  <div class="card">
     <div class="card-header">
-      <div class="card-title"><div class="card-icon icon-orange">🎯</div> My Jira Tasks (CS-OPs)</div>
-      <span class="badge badge-live">● Live · 5 open</span>
+      <div class="card-title">
+        <div class="icon slack-icon">&#128172;</div>
+        Slack Messages
+      </div>
+      <span class="card-badge" style="background:#fce7f3;color:#9d174d;">Last 7 days</span>
     </div>
-    <div class="jira-list">
+    <div class="card-body-scroll">
 
-      <a class="jira-item" href="https://appdirect.jira.com/browse/COT-25386" target="_blank">
-        <div class="jira-dot p-medium"></div>
-        <div class="jira-body">
-          <div class="jira-key">COT-25386</div>
-          <div class="jira-summary">Order #14d7d7f7 Issue — incorrect storage & memory specs (Tanium)</div>
-          <div class="jira-meta"><span class="status-pill s-waiting">Awaiting Info</span><span class="jira-date">Mar 24</span></div>
+      <div class="slack-item">
+        <div class="slack-avatar">AS</div>
+        <div class="slack-content">
+          <div class="slack-sender">Amy Smith <span class="slack-channel">&middot; DM</span></div>
+          <div class="slack-text">let me know when you receive it</div>
         </div>
-      </a>
+      </div>
 
-      <a class="jira-item" href="https://appdirect.jira.com/browse/COT-25221" target="_blank">
-        <div class="jira-dot p-high"></div>
-        <div class="jira-body">
-          <div class="jira-key">COT-25221</div>
-          <div class="jira-summary">MaryRuth — Shipment issue (MacBook Pro 14" returned to shipper)</div>
-          <div class="jira-meta"><span class="status-pill s-waiting">Awaiting Info</span><span class="jira-date">Mar 17</span></div>
+      <div class="slack-item">
+        <div class="slack-avatar">AS</div>
+        <div class="slack-content">
+          <div class="slack-sender">Amy Smith <span class="slack-channel">&middot; DM</span></div>
+          <div class="slack-text">Has Geodis EU confirm the arrival of the order? #ORD-260312-38D64CFF</div>
         </div>
-      </a>
+      </div>
 
-      <a class="jira-item" href="https://appdirect.jira.com/browse/COT-24884" target="_blank">
-        <div class="jira-dot p-high"></div>
-        <div class="jira-body">
-          <div class="jira-key">COT-24884</div>
-          <div class="jira-summary">Shipment Notice from EU // Carta — stuck in processing status</div>
-          <div class="jira-meta"><span class="status-pill s-inprogress">In Progress</span><span class="jira-date">Mar 4</span></div>
+      <div class="slack-item">
+        <div class="slack-avatar">DB</div>
+        <div class="slack-content">
+          <div class="slack-sender">Drea Bosque <span class="slack-channel">&middot; DM</span></div>
+          <div class="slack-text">all good</div>
         </div>
-      </a>
+      </div>
 
-      <a class="jira-item" href="https://appdirect.jira.com/browse/COT-24840" target="_blank">
-        <div class="jira-dot p-high"></div>
-        <div class="jira-body">
-          <div class="jira-key">COT-24840</div>
-          <div class="jira-summary">Discord — Kitting in EU, SG & MY for Laptop + Power Cable</div>
-          <div class="jira-meta"><span class="status-pill s-todo">To Do</span><span class="jira-date">Mar 3</span></div>
+      <div class="slack-item">
+        <div class="slack-avatar">DB</div>
+        <div class="slack-content">
+          <div class="slack-sender">Drea Bosque <span class="slack-channel">&middot; DM</span></div>
+          <div class="slack-text">that is a privacy screen</div>
         </div>
-      </a>
+      </div>
 
-      <a class="jira-item" href="https://appdirect.jira.com/browse/COT-24476" target="_blank">
-        <div class="jira-dot p-high"></div>
-        <div class="jira-body">
-          <div class="jira-key">COT-24476</div>
-          <div class="jira-summary">Pax8 — Wrong item received (Voyager Surround vs Focus 2)</div>
-          <div class="jira-meta"><span class="status-pill s-todo">To Do</span><span class="jira-date">Feb 17</span></div>
+      <div class="slack-item">
+        <div class="slack-avatar">DB</div>
+        <div class="slack-content">
+          <div class="slack-sender">Drea Bosque <span class="slack-channel">&middot; DM</span></div>
+          <div class="slack-text">ORD-260407-UUGSS8BX</div>
         </div>
-      </a>
+      </div>
+
+      <div class="slack-item">
+        <div class="slack-avatar">DB</div>
+        <div class="slack-content">
+          <div class="slack-sender">Drea Bosque <span class="slack-channel">&middot; DM</span></div>
+          <div class="slack-text">I searched 100013432</div>
+        </div>
+      </div>
+
+      <div class="slack-item">
+        <div class="slack-avatar">RP</div>
+        <div class="slack-content">
+          <div class="slack-sender">Robert Pridgen <span class="slack-channel">&middot; DM</span></div>
+          <div class="slack-text">can you join the India call?</div>
+        </div>
+      </div>
+
+      <div class="slack-item">
+        <div class="slack-avatar">AS</div>
+        <div class="slack-content">
+          <div class="slack-sender">Amy Smith <span class="slack-channel">&middot; DM</span></div>
+          <div class="slack-text">Okay thank you</div>
+        </div>
+      </div>
+
+      <div class="slack-item">
+        <div class="slack-avatar">DB</div>
+        <div class="slack-content">
+          <div class="slack-sender">Drea Bosque <span class="slack-channel">&middot; DM</span></div>
+          <div class="slack-text">that worked</div>
+        </div>
+      </div>
+
+      <div class="slack-item">
+        <div class="slack-avatar">AS</div>
+        <div class="slack-content">
+          <div class="slack-sender">Amy Smith <span class="slack-channel">&middot; DM</span></div>
+          <div class="slack-text">hello there any update on #ORD-251211-C1D4CA75</div>
+        </div>
+      </div>
+
+      <div class="slack-item">
+        <div class="slack-avatar">DB</div>
+        <div class="slack-content">
+          <div class="slack-sender">Drea Bosque <span class="slack-channel">&middot; DM</span></div>
+          <div class="slack-text">yea, take your time!</div>
+        </div>
+      </div>
+
+      <div class="slack-item">
+        <div class="slack-avatar">DB</div>
+        <div class="slack-content">
+          <div class="slack-sender">Drea Bosque <span class="slack-channel">&middot; DM</span></div>
+          <div class="slack-text">just trying to get into the flow where I use it daily to test and see if anything needs to evolve</div>
+        </div>
+      </div>
+
+      <div class="slack-item">
+        <div class="slack-avatar">UF</div>
+        <div class="slack-content">
+          <div class="slack-sender">Usama Fateh <span class="slack-channel">&middot; DM</span></div>
+          <div class="slack-text">I have received the classifications in the sheet, but waiting for access.</div>
+        </div>
+      </div>
+
+      <div class="slack-item">
+        <div class="slack-avatar">DB</div>
+        <div class="slack-content">
+          <div class="slack-sender">Drea Bosque <span class="slack-channel">&middot; DM</span></div>
+          <div class="slack-text">hey - can I use the 3pl dashboard?</div>
+        </div>
+      </div>
 
     </div>
   </div>
 
-  <!-- KPI + TODO -->
-  <div class="col-5" style="display:flex;flex-direction:column;gap:15px;">
-
-    <div class="card green" style="flex-shrink:0;">
-      <div class="card-header">
-        <div class="card-title"><div class="card-icon icon-green">📊</div> Key Metrics</div>
-      </div>
-      <div class="kpi-grid">
-        <div class="kpi-box">
-          <div class="kpi-label">Open Tickets</div>
-          <div class="kpi-value" contenteditable="true">5</div>
-          <div class="kpi-sub" contenteditable="true">assigned to me</div>
-        </div>
-        <div class="kpi-box">
-          <div class="kpi-label">High Priority</div>
-          <div class="kpi-value" contenteditable="true">4</div>
-          <div class="kpi-sub" contenteditable="true">need attention</div>
-        </div>
-        <div class="kpi-box">
-          <div class="kpi-label">Unread Emails</div>
-          <div class="kpi-value" contenteditable="true">6</div>
-          <div class="kpi-sub" contenteditable="true">in inbox today</div>
-        </div>
-        <div class="kpi-box">
-          <div class="kpi-label">Meetings Today</div>
-          <div class="kpi-value" contenteditable="true">3</div>
-          <div class="kpi-sub" contenteditable="true">starts at 2:30 PM</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card pink" style="flex:1;">
-      <div class="card-header">
-        <div class="card-title"><div class="card-icon icon-pink">✅</div> Today's To-Do</div>
-      </div>
-      <div class="todo-list" id="todoList">
-        <div class="todo-item" onclick="toggleTodo(this)">
-          <div class="todo-check"></div>
-          <div class="todo-text" contenteditable="true" onclick="event.stopPropagation()">Follow up on MaryRuth MacBook shipment return</div>
-          <button class="todo-del" onclick="delTodo(event,this)">×</button>
-        </div>
-        <div class="todo-item" onclick="toggleTodo(this)">
-          <div class="todo-check"></div>
-          <div class="todo-text" contenteditable="true" onclick="event.stopPropagation()">Reply Amy Smith re: inventory orders ETA</div>
-          <button class="todo-del" onclick="delTodo(event,this)">×</button>
-        </div>
-        <div class="todo-item" onclick="toggleTodo(this)">
-          <div class="todo-check"></div>
-          <div class="todo-text" contenteditable="true" onclick="event.stopPropagation()">Reply Samad re: GRV Stock Picture report format</div>
-          <button class="todo-del" onclick="delTodo(event,this)">×</button>
-        </div>
-        <div class="todo-item" onclick="toggleTodo(this)">
-          <div class="todo-check"></div>
-          <div class="todo-text" contenteditable="true" onclick="event.stopPropagation()">Prep for War Room - All Geos (6:30 PM)</div>
-          <button class="todo-del" onclick="delTodo(event,this)">×</button>
-        </div>
-      </div>
-      <button class="todo-add" onclick="addTodo()">＋ Add task</button>
-    </div>
-
-  </div>
-
-</div>
-
-<div class="footer">
-  Dashboard for <span>Adil Khan</span> · Firstbase · Generated: <span id="genTime">–</span> · Auto-refreshes every 10 min
 </div>
 
 <script>
-  // ── CLOCK ──
-  function updateClock() {
-    const now = new Date();
-    const h = String(now.getHours()).padStart(2,'0');
-    const m = String(now.getMinutes()).padStart(2,'0');
-    document.getElementById('clock').textContent = h+':'+m;
-    const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
-    document.getElementById('dateChip').textContent = days[now.getDay()]+', '+months[now.getMonth()]+' '+now.getDate()+', '+now.getFullYear();
-    document.getElementById('genTime').textContent = days[now.getDay()]+' '+h+':'+m;
-  }
-  updateClock();
-  setInterval(updateClock, 30000);
-
-  // ── AUTO REFRESH every 10 min ──
-  let nextRefresh = Date.now() + 10 * 60 * 1000;
-
-  function updateCountdown() {
-    const remaining = Math.max(0, nextRefresh - Date.now());
-    const m = Math.floor(remaining / 60000);
-    const s = Math.floor((remaining % 60000) / 1000);
-    document.getElementById('countdown').textContent = 'Next refresh in ' + m + ':' + String(s).padStart(2,'0');
-    if (remaining === 0) location.reload();
-  }
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
-
-  // ── MANUAL REFRESH ──
-  function doRefresh() {
-    const btn = document.getElementById('refreshBtn');
-    btn.classList.add('spinning');
-    btn.disabled = true;
-    setTimeout(() => location.reload(), 600);
-  }
-
-  // ── TOAST ──
-  function showToast(msg, dur = 2800) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), dur);
-  }
-
-  // ── REMOVE PAST MEETINGS ──
-  function filterMeetings() {
-    const now = new Date();
-    const items = document.querySelectorAll('.cal-item[data-end]');
-    let visible = 0;
-    items.forEach(el => {
-      const endTime = new Date(el.getAttribute('data-end'));
-      if (endTime < now) {
-        el.remove();
-      } else {
-        visible++;
-      }
-    });
-    if (visible === 0) {
-      const list = document.getElementById('meetingsList');
-      list.innerHTML = '<div class="cal-empty">🎉 No more meetings today!</div>';
-    }
-  }
-  filterMeetings();
-
-  // ── SLACK REPLY ──
-  function toggleReply(btn) {
-    const item = btn.closest('.slack-item');
-    const compose = item.querySelector('.slack-compose');
-    const isOpen = compose.classList.contains('open');
-    // close all others
-    document.querySelectorAll('.slack-compose.open').forEach(c => c.classList.remove('open'));
-    if (!isOpen) {
-      compose.classList.add('open');
-      compose.querySelector('textarea').focus();
-    }
-  }
-
-  function cancelReply(btn) {
-    btn.closest('.slack-compose').classList.remove('open');
-  }
-
-  function sendSlackReply(btn, slackUrl) {
-    const compose = btn.closest('.slack-compose');
-    const text = compose.querySelector('textarea').value.trim();
-    if (!text) { showToast('⚠️ Please type a reply first.'); return; }
-    // Copy to clipboard
-    navigator.clipboard.writeText(text).then(() => {
-      showToast('✅ Reply copied! Opening Slack thread…');
-      window.open(slackUrl, '_blank');
-      compose.querySelector('textarea').value = '';
-      compose.classList.remove('open');
-    }).catch(() => {
-      // Fallback: still open Slack
-      showToast('Opening Slack — paste your reply there.');
-      window.open(slackUrl, '_blank');
-      compose.classList.remove('open');
-    });
-  }
-
-  // ── TODO ──
-  function toggleTodo(item) {
-    item.classList.toggle('done');
-    item.querySelector('.todo-check').textContent = item.classList.contains('done') ? '✓' : '';
-  }
-  function delTodo(e, btn) { e.stopPropagation(); btn.closest('.todo-item').remove(); }
-  function addTodo() {
-    const list = document.getElementById('todoList');
-    const div = document.createElement('div');
-    div.className = 'todo-item';
-    div.onclick = function(){ toggleTodo(this); };
-    div.innerHTML = `<div class="todo-check"></div><div class="todo-text" contenteditable="true" onclick="event.stopPropagation()">New task…</div><button class="todo-del" onclick="delTodo(event,this)">×</button>`;
-    list.appendChild(div);
-    setTimeout(()=>{ const t=div.querySelector('.todo-text'); t.focus(); const r=document.createRange(); r.selectNodeContents(t); const s=window.getSelection(); s.removeAllRanges(); s.addRange(r); },50);
-  }
+  // Determine greeting based on time of day
+  (function() {
+    const hour = new Date().getHours();
+    let greeting = 'Good morning';
+    if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
+    else if (hour >= 17) greeting = 'Good evening';
+    document.querySelector('.greeting').textContent = greeting + ', Adil';
+  })();
 </script>
+
 </body>
 </html>
